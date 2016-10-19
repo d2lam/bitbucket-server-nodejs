@@ -9,6 +9,7 @@ describe('Client', function () {
     var baseUrl = 'http://localhost/';
     var auth = require('./mocks/auth');
     var oauth = require('./mocks/oauth');
+    var oauth2 = require('./mocks/oauth2');
     var repos = require('./mocks/repos');
 
     it('should complain about missing baseUrl parameter', function (done) {
@@ -90,6 +91,16 @@ describe('Client', function () {
         done();
     });
 
+    it('should complain about missing oauth attributes when auth.type === oauth2', function (done) {
+        assert.throws(function () {
+            new BitbucketClient(baseUrl, {
+                type: 'oauth2'
+            });
+        }, 'Auth\'s bearer is missing');
+
+        done();
+    });
+
     describe('should complain about missing oauth attributes when auth.type === oauth', function () {
         var attributes = ['consumer_key', 'consumer_secret', 'signature_method', 'token', 'token_secret'];
 
@@ -129,6 +140,24 @@ describe('Client', function () {
 
         assert.equal(client.baseUrl, baseUrl);
         assert.equal(client.auth, auth);
+
+        assert.isNotNull(client.projects);
+        assert.isNotNull(client.branches);
+        assert.isNotNull(client.repos);
+        assert.isNotNull(client.prs);
+        assert.isNotNull(client.hooks);
+        assert.isNotNull(client.users);
+        assert.isNotNull(client.settings);
+
+        done();
+    });
+
+    it('should create a bitbucket client with auth.type === oauth2', function (done) {
+        var client = new BitbucketClient(baseUrl, oauth2);
+        assert.typeOf(client, 'object');
+
+        assert.equal(client.baseUrl, baseUrl);
+        assert.equal(client.auth, oauth2);
 
         assert.isNotNull(client.projects);
         assert.isNotNull(client.branches);
@@ -244,4 +273,3 @@ describe('Client', function () {
         });
     });
 });
-
